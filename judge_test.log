@@ -1,0 +1,50 @@
+/Users/saurabh/Downloads/magicpin-ai-challenge/judge_simulator.py:460: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "payload": payload, "delivered_at": datetime.utcnow().isoformat() + "Z"
+/Users/saurabh/Downloads/magicpin-ai-challenge/judge_simulator.py:465: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "now": datetime.utcnow().isoformat() + "Z", "available_triggers": triggers
+
+[95m[1m======================================================================[0m
+[95m[1m                  magicpin AI Challenge — LLM Judge                   [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m LLM Provider: Heuristic-Eval-Engine
+[94m[INFO][0m Testing LLM connection...
+[92m[PASS][0m LLM connected successfully
+
+[95m[1m======================================================================[0m
+[95m[1m                     LLM JUDGE — FULL_EVALUATION                      [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m Bot: http://localhost:8080
+[94m[INFO][0m LLM: Heuristic-Eval-Engine
+[94m[INFO][0m Loaded: 5 categories, 10 merchants, 25 triggers
+
+[96m[1m--- WARMUP ---[0m
+
+[92m[PASS][0m healthz (36ms)
+[92m[PASS][0m metadata — Team: Vera Deterministic Builders, Model: rule-based-v4
+
+[96m[1m--- CONTEXT PUSH ---[0m
+
+  [PASS] category/dentists
+  [PASS] category/gyms
+  [PASS] category/salons
+  [PASS] category/pharmacies
+  [PASS] category/restaurants
+  [PASS] merchant/001
+  [PASS] merchant/002
+  [PASS] merchant/003
+  [PASS] merchant/004
+  [PASS] merchant/005
+
+[96m[1m--- FULL EVALUATION ---[0m
+
+[92m[PASS][0m All contexts pushed
+
+[96m[1m--- SCORING COMPOSITIONS ---[0m
+
+[94m[INFO][0m Batch 1: 0 actions (1ms)
+[94m[INFO][0m Batch 2: 0 actions (1ms)
+[94m[INFO][0m Batch 3: 0 actions (1ms)
+[94m[INFO][0m Batch 4: 0 actions (1ms)
+[94m[INFO][0m Batch 5: 0 actions (1ms)

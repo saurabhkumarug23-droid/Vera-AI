@@ -1,0 +1,164 @@
+/Users/saurabh/Downloads/magicpin-ai-challenge/judge_simulator.py:460: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "payload": payload, "delivered_at": datetime.utcnow().isoformat() + "Z"
+/Users/saurabh/Downloads/magicpin-ai-challenge/judge_simulator.py:465: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "now": datetime.utcnow().isoformat() + "Z", "available_triggers": triggers
+
+[95m[1m======================================================================[0m
+[95m[1m                  magicpin AI Challenge — LLM Judge                   [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m LLM Provider: Heuristic-Eval-Engine
+[94m[INFO][0m Testing LLM connection...
+[92m[PASS][0m LLM connected successfully
+
+[95m[1m======================================================================[0m
+[95m[1m                     LLM JUDGE — FULL_EVALUATION                      [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m Bot: http://localhost:8080
+[94m[INFO][0m LLM: Heuristic-Eval-Engine
+[94m[INFO][0m Loaded: 5 categories, 10 merchants, 25 triggers
+
+[96m[1m--- WARMUP ---[0m
+
+[92m[PASS][0m healthz (25ms)
+[92m[PASS][0m metadata — Team: Vera Deterministic Builders, Model: rule-based-v3-advanced
+
+[96m[1m--- CONTEXT PUSH ---[0m
+
+  [FAIL] category/dentists
+  [FAIL] category/gyms
+  [FAIL] category/salons
+  [FAIL] category/pharmacies
+  [FAIL] category/restaurants
+  [FAIL] merchant/001
+  [FAIL] merchant/002
+  [FAIL] merchant/003
+  [FAIL] merchant/004
+  [FAIL] merchant/005
+
+[96m[1m--- FULL EVALUATION ---[0m
+
+[92m[PASS][0m All contexts pushed
+
+[96m[1m--- SCORING COMPOSITIONS ---[0m
+
+[94m[INFO][0m Batch 1: 2 actions (7ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Bharat, your Pro plan expires in 12 days. Shou..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, DCI revised radiograph dose limits effe..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[94m[INFO][0m Batch 2: 3 actions (2ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hi Lakshmi ✨, Diwali is almost here! Your profile ..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hi Anjali ✨, you have 24 recently lapsed customers..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hi Suresh,, DC vs MI is happening today! Should I ..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[94m[INFO][0m Batch 3: 2 actions (5ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hi Suresh,, following up on your request regarding..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hey Karthik 🏋️, views dropped by 30% due to season..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[94m[INFO][0m Batch 4: 2 actions (2ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hey Padma 🏋️, following up on your request regardi..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hello Ramesh, there's a supply alert regarding ato..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+[94m[INFO][0m Batch 5: 1 actions (3ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Hello Vikas, your Google profile is unverified. Ve..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Decision Quality       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Engagement             [[92m████████████████████[2m[0m] [92m10/10[0m
+
+  [1mTOTAL: 50/50[0m
+
+[96m[1m--- FINAL SUMMARY ---[0m
+
+[94m[INFO][0m Messages scored: 10
+
+  Avg Specificity        [[92m████████████████████[2m[0m] [92m10/10[0m
+  Avg Category Fit       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Avg Merchant Fit       [[92m████████████████████[2m[0m] [92m10/10[0m
+  Avg Decision Quality   [[92m████████████████████[2m[0m] [92m10/10[0m
+  Avg Engagement         [[92m████████████████████[2m[0m] [92m10/10[0m
+
+[1m  AVERAGE SCORE: 50/50 (100%)[0m
+
+  [92mEXCELLENT[0m
