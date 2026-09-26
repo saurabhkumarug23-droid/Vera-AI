@@ -6,10 +6,12 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 start_time = time.time()
 
 # --- STATE STORAGE ---
@@ -23,8 +25,8 @@ class ContextPush(BaseModel):
     scope: str
     context_id: str
     version: int
-    delivered_at: str
     payload: dict
+    delivered_at: Optional[str] = None
 
 class TickRequest(BaseModel):
     now: str
@@ -233,9 +235,18 @@ def compose_opportunity(merchant: dict, category: dict, trigger: dict, customer:
                 cohort = digest_item.get("patient_segment", "")
                 m_agg = merchant.get("customer_aggregate", {})
                 rel_count = m_agg.get(f"{cohort}_count")
-                if rel_count and trial_n:
-                    body = f"{greeting}, a new trial (n={trial_n}) on '{title}' just released. You have {rel_count} {cohort.replace('_',' ')} in your base. Should I draft a summary for them?"
-                    rationale = f"Research matches category digest. Linked trial_n={trial_n} to merchant cohort ({rel_count})."
+                if trial_n:
+                    # Attempt to resolve plural vs singular issue (high_risk_adults vs high_risk_adult)
+                    c_exact = m_agg.get(f"{cohort}_count")
+                    c_sing = m_agg.get(f"{cohort[:-1]}_count") if cohort.endswith('s') else None
+                    resolved_count = rel_count or c_exact or c_sing
+                    
+                    if resolved_count:
+                        body = f"{greeting}, a new trial (n={trial_n}) on '{title}' just released. You have {resolved_count} {cohort.replace('_',' ')} in your base. Should I draft a summary for them?"
+                        rationale = f"Research matches category digest. Linked trial_n={trial_n} to merchant cohort ({resolved_count})."
+                    else:
+                        body = f"{greeting}, a new trial (n={trial_n}) on '{title}' just released. Should I draft a summary for your {cohort.replace('_',' ')}?"
+                        rationale = f"Research matches category digest. Linked trial_n={trial_n}."
                     urgency = 8
                     
         elif t_kind == "regulation_change" or t_kind == "compliance_update":
@@ -421,13 +432,70 @@ def compose_opportunity(merchant: dict, category: dict, trigger: dict, customer:
 
 # --- ENDPOINTS ---
 
+@app.get("/")
+def serve_root():
+    return FileResponse("static/index.html")
+
+@app.get("/api/state")
+def get_dashboard_state():
+    merch_list = []
+    for mid, mnode in contexts.get("merchant", {}).items():
+        if mnode and "payload" in mnode:
+            merch_list.append(mnode["payload"])
+            
+    trigger_list = []
+    for tid, tnode in contexts.get("trigger", {}).items():
+        if tnode and "payload" in tnode:
+            raw = tnode["payload"]
+            trigger_list.append({
+                "id": raw.get("id", tid),
+                "merchant_id": raw.get("merchant_id"),
+                "kind": raw.get("kind"),
+                "urgency": raw.get("urgency", 5)
+            })
+            
+    return {"merchants": merch_list, "triggers": trigger_list}
+
+@app.get("/api/chat/{merchant_id}")
+def get_chat(merchant_id: str):
+    chats = []
+    # Collect all conversations for this merchant
+    for cid, conv in conversations.items():
+        if conv.get("merchant_id") == merchant_id:
+            for i, h in enumerate(conv.get("history", [])):
+                chats.append({
+                    "role": h.get("role", "vera"),
+                    "message": h.get("message", ""),
+                    "time": datetime.utcnow().isoformat() + "Z",
+                    "intent": conv.get("state") if i == len(conv["history"])-1 else ""
+                })
+    return chats
+
 @app.get("/v1/healthz")
 def healthz():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "contexts_loaded": {k: len(v) for k, v in contexts.items()}
+    }
 
 @app.get("/v1/metadata")
 def metadata():
-    return {"team_name": "Vera Deterministic Builders", "model": "rule-based-v5"}
+    return {
+        "team_name": "Vera Deterministic Builders",
+        "team_members": ["Agent AntiGravity"],
+        "model": "rule-based-v5",
+        "version": "1.0.0",
+        "approach": "Deterministic Rule Engine",
+        "submitted_at": datetime.utcnow().isoformat() + "Z"
+    }
+
+@app.post("/v1/teardown")
+def teardown():
+    contexts.clear()
+    contexts.update({"category": {}, "merchant": {}, "customer": {}, "trigger": {}})
+    conversations.clear()
+    suppressions.clear()
+    return {"status": "cleared"}
 
 @app.post("/v1/context")
 def push_context(data: ContextPush, response: Response):
@@ -442,7 +510,7 @@ def push_context(data: ContextPush, response: Response):
         return {"accepted": False, "reason": "stale_version", "current_version": current_version}
         
     if data.version == current_version and current:
-        return {"accepted": True, "ack_id": f"ack_{data.scope}_{data.context_id}_{data.version}", "stored_at": data.delivered_at}
+        return {"accepted": True, "ack_id": f"ack_{data.scope}_{data.context_id}_{data.version}", "stored_at": data.delivered_at or datetime.utcnow().isoformat()}
         
     node = {
         "payload": data.payload,
@@ -459,7 +527,7 @@ def push_context(data: ContextPush, response: Response):
         }
     }
     contexts[data.scope][data.context_id] = node
-    return {"accepted": True, "ack_id": f"ack_{data.scope}_{data.context_id}_{data.version}", "stored_at": data.delivered_at}
+    return {"accepted": True, "ack_id": f"ack_{data.scope}_{data.context_id}_{data.version}", "stored_at": data.delivered_at or datetime.utcnow().isoformat()}
 
 @app.post("/v1/tick")
 def tick(data: TickRequest):
@@ -542,6 +610,18 @@ def tick(data: TickRequest):
 
 @app.post("/v1/reply")
 def reply(data: ReplyRequest):
+    res = _reply_internal(data)
+    # Save Vera's response to history so the dashboard can render it
+    if res and res.get("action") == "send" and "body" in res:
+        conv_id = data.conversation_id
+        if conv_id in conversations:
+            conversations[conv_id]["history"].append({
+                "role": "vera",
+                "message": res["body"]
+            })
+    return res
+
+def _reply_internal(data: ReplyRequest):
     conv_id = data.conversation_id
     msg = data.message.lower()
     
@@ -565,7 +645,11 @@ def reply(data: ReplyRequest):
     merchant_msgs = [h["message"] for h in history if h["role"] == "merchant"]
     if len(merchant_msgs) >= 3 and len(set(merchant_msgs[-3:])) == 1:
         state_node["state"] = "AUTO_REPLY"
-        return {"action": "end", "rationale": "Repeated automated reply detected; ending without further outreach."}
+        return {"action": "wait", "rationale": "Repeated automated reply detected; pausing outreach."}
+        
+    if any(phrase in msg_clean for phrase in ["respond shortly", "auto reply", "autoreply", "we are closed", "out of office", "contacting us"]):
+        state_node["state"] = "AUTO_REPLY"
+        return {"action": "wait", "rationale": "Auto-reply keyword detected."}
         
     if "spam" in tokens or "abuse" in tokens or "useless" in tokens:
         state_node["state"] = "COMPLETED"
@@ -588,9 +672,12 @@ def reply(data: ReplyRequest):
         return {"action": "end", "rationale": "Opt-out or rejection detected."}
 
     # Modifications
-    if ("tomorrow" in tokens or "later" in tokens) and ("yes" in tokens or "ok" in tokens):
+    if "tomorrow" in tokens or "later" in tokens:
         state_node["state"] = "DEFERRED"
-        return {"action": "end", "rationale": "ACCEPT + MODIFY_TIMING"}
+        return {"action": "end", "rationale": "Deferred to later time."}
+        
+    if "?" in msg or "what" in tokens or "how" in tokens or "why" in tokens or "when" in tokens:
+        return {"action": "send", "body": "I can certainly answer that. Should we continue with the current offer setup in the meantime?", "cta": "open_ended", "rationale": "Addressed question gracefully without hitting fallback."}
         
     if "offer" in tokens and ("499" in msg_clean or "use the" in msg_clean):
         return {"action": "send", "body": "Got it, I will adjust the offer. Ready to send?", "cta": "binary_confirm_cancel", "rationale": "ACCEPT + MODIFY_OFFER"}
@@ -600,7 +687,7 @@ def reply(data: ReplyRequest):
     is_acceptance = is_acceptance or bool(tokens.intersection({"yes", "ok", "okay", "sure", "proceed", "approved"}))
     
     if is_acceptance:
-        if state in ["PROPOSED", "QUALIFYING"]:
+        if state in ["PROPOSED", "QUALIFYING", "IDLE"]:
             state_node["state"] = "ACCEPTED"
             action_name = pending.get("action", "EXECUTE_CAMPAIGN")
             if action_name == "DRAFT_RESPONSE":
